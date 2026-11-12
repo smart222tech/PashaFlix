@@ -1,13 +1,24 @@
 # Source feasibility research
 
-Status: IN PROGRESS. Catalogue feasibility is partly confirmed for KinoBesplatno. No source is approved for direct playback yet. Checked 2026-11-12.
+Status: catalogue feasibility is confirmed for ZONA and partly confirmed for KinoBesplatno. No source is approved for direct stream extraction or direct playback yet. Checked 2026-11-12.
 
 ## ZONA
 
-- Historical user-provided reference: https://telegra.ph/ZONA-ZONA-NETFLIX-DISNEY-AMAZON-PRIME-KINO-I-TD-12-12
-- The Telegraph page currently returns a DELETED page, so it cannot establish the present-day source URL, page structure, or playback flow.
-- User previously described a movie page with multiple player choices, including a 4K option. This is historical user observation, not a current verification.
-- NEED FROM USER: current direct ZONA catalogue/title URL(s), ideally one movie and one series page, and the exact domain/app name if "ZONA" refers to a separate app or website.
+- Current user-confirmed source: https://w140.zona.plus/
+- Sample series: https://w140.zona.plus/tvseries/ukrytie-2023
+- Sample season pages:
+  - https://w140.zona.plus/tvseries/ukrytie-2023/season-1
+  - https://w140.zona.plus/tvseries/ukrytie-2023/season-2
+- Public catalogues:
+  - https://w140.zona.plus/movies
+  - https://w140.zona.plus/tvseries
+- Series detail page exposes title ("Укрытие"), original title (Silo), year, ratings, genres, country, director, writers, cast, premiere date, synopsis, poster/backdrop metadata, and season navigation.
+- The sample series advertises 3 seasons. Season 1 and season 2 pages each expose 10 episode names; season 3 is linked from the title page.
+- Public movie catalogue exposes genre/year/country/rating filters, sort options (popularity, rating, release date), and movie detail links.
+- Public series catalogue and updates pages expose lists of title links and ratings.
+- Inspection returned no iframe links and no directly exposed media URL in the parsed HTML. This is not proof that the interactive browser player has no playback; it means a direct stream path has NOT been established by this inspection.
+- User previously described player choices including "Player 1" and "Player 2 (4K)" on a different movie. That is user-reported historical behaviour, not verified on the current sample.
+- Catalogue metadata and season/episode navigation appear technically parseable. Playback must be investigated separately using the site's permitted, user-facing flow. Do not defeat verification, DRM, authentication, paywalls, or other access controls.
 
 ## KinoBesplatno
 
@@ -19,27 +30,27 @@ Status: IN PROGRESS. Catalogue feasibility is partly confirmed for KinoBesplatno
 - Movie and series catalogue pages expose card titles, year, country, genres, synopsis, and poster URLs.
 - The title page advertises an embed endpoint via Open Graph/Twitter metadata: https://kinobesplatno.online/serialy/legend-of-zang-hai-2025?embed=player
 - Fetching that embed endpoint currently returns an instruction to complete a human tile verification ("Нажмите плитку с кинопленкой"). It does not expose a video iframe or media URL in the inspected response.
-- This means catalogue parsing looks technically feasible, but automated playback resolution is NOT established. We must not automate or bypass the human verification. We need to determine whether the site offers a documented/authorized integration or whether playback must be handed off to the site's own page/player.
+- Catalogue parsing looks technically feasible, but automated playback resolution is NOT established. Do not automate or bypass human verification. Determine whether a documented/authorized integration exists or use an external hand-off to the site's own page/player.
 
 ## Required evidence per source
 
-Record the date checked, exact page URL, HTTP outcome, page type, visible metadata, pagination, episode structure, player choices, media type if openly exposed, subtitle/audio options, device playback result, and any relevant terms/licensing restrictions.
+Record the date checked, exact page URL, HTTP outcome, page type, visible metadata, pagination, episode structure, player choices, media type if openly exposed, subtitle/audio options, device playback result, and relevant terms/licensing restrictions.
 
-Do not record guessed stream URLs. Do not evade bot protection, human verification, login requirements, DRM, paywalls, or access controls. If a site only supports its own browser/player experience, document an external hand-off rather than extracting a protected stream.
+Do not record guessed stream URLs. Do not evade bot protection, human verification, login requirements, DRM, paywalls, or access controls. If a site only supports its own player, document an external hand-off rather than extracting a protected stream.
 
 ## Test matrix
 
 | Test | ZONA | KinoBesplatno |
 |---|---|---|
-| Public catalogue accessible | NEED URL | CONFIRMED |
-| Search/category navigation | NOT TESTED | PARTLY OBSERVED |
-| Movie details and artwork | NEED URL | PARTLY OBSERVED |
-| Series seasons and episodes | NEED URL | CONFIRMED: 1 season / 40 episodes sample |
-| Playback page accessible | NEED URL | EMBED PAGE RETURNS HUMAN VERIFICATION |
+| Public catalogue accessible | CONFIRMED | CONFIRMED |
+| Search/category navigation | PARTLY OBSERVED | PARTLY OBSERVED |
+| Movie details and artwork | PARTLY OBSERVED | PARTLY OBSERVED |
+| Series seasons and episodes | CONFIRMED: 3 seasons; sample seasons 1 and 2 each list 10 episodes | CONFIRMED: sample lists 40 episodes |
+| Playback page / player path | NOT ESTABLISHED | EMBED PAGE RETURNS HUMAN VERIFICATION |
 | Authorized direct playback path | NOT ESTABLISHED | NOT ESTABLISHED |
 | Media3 playback on Google TV | NOT TESTED | NOT TESTED |
 | Terms/access model reviewed | NOT TESTED | NOT TESTED |
 
 ## Decision rule
 
-Implement the KinoBesplatno catalogue adapter only for public catalogue metadata after checking the site's terms and access policy. Keep playback resolution disabled until a stable, permitted path is established. If only the site's own verified player is supported, use an external hand-off or exclude playback integration. Implement ZONA only after the current source URLs and access model are supplied and verified.
+Proceed with public catalogue adapters only after reviewing the relevant site terms and access policy. Keep direct playback resolution disabled until a stable, permitted path is established. If a source only supports its own player, use an external hand-off or exclude playback integration. Do not mark a source READY until the complete flow has passed real-device tests.
