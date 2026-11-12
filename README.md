@@ -24,3 +24,19 @@ Project bootstrap and source feasibility research. No source adapter or playback
 - GitHub Actions for reproducible APK builds
 
 See [Architecture](docs/ARCHITECTURE.md) and [Source research](docs/SOURCE_RESEARCH.md).
+
+
+## Android app scaffold
+
+The `feature/bootstrap` branch now contains the first native Android application scaffold:
+
+- Kotlin + Jetpack Compose UI.
+- Android TV / Leanback launcher entry point.
+- Embedded WebView fallback for the public ZONA movie page.
+- A diagnostic WebView request observer that classifies visible media-shaped requests (HLS, DASH, MP4, TS, M4S) without persisting full URLs or credentials.
+- Media3 dependencies and an explicit external-playback host policy. The host allowlist is empty until a source explicitly authorizes external playback.
+- GitHub Actions workflow to build and upload a debug APK.
+
+The observer is diagnostic, not a stream extractor. It does not export third-party media URLs, cookies, signed query parameters, or authorization headers into Media3. For ZONA, the first implementation keeps playback inside the site's own WebView player unless a permitted external playback interface is established.
+
+Build status: pending first GitHub Actions run. No APK is claimed until CI succeeds.
