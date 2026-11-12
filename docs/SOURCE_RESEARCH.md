@@ -14,12 +14,12 @@ Status: catalogue feasibility is confirmed for ZONA and partly confirmed for Kin
   - https://w140.zona.plus/movies
   - https://w140.zona.plus/tvseries
 - Sample movie page inspection (2026-11-12): title "Одиссея", original title "The Odyssey", year 2026, age label 18+, ratings displayed as 8.2 / 8.1 / 8.4, countries Iceland, New Zealand, Canada, USA, United Kingdom; director Christopher Nolan; screenplay Christopher Nolan and Homer; cast list; duration 2h 46m; premiere 6 July 2026; synopsis and poster image URL are present in the public page.
-- The movie page contains a visible "Смотреть фильм" section, but the extracted static HTML did not expose player option labels, iframe URLs, or a direct media URL. The fetch returned no iframe links. Therefore the reported "Player 1" / "Player 2 (4K)" choices are still NOT independently verified on this exact movie page. A browser-rendered/user-facing inspection is required to confirm their labels, selection behaviour, and whether quality options are distinct sources or only player variants.
+- User screenshot of the exact movie page (2026-11-12, mobile browser) confirms ONE embedded video player only: native-style controls, playback observed at 0:07 / 2:45:35, with volume, fullscreen, and overflow controls. A separate blue "СМОТРЕТЬ ФИЛЬМ" button is visible below the player. The screenshot does not show a player selector, a second player, or a 4K choice. For this sample page, record the user-facing setup as one visible player; do not implement a player/quality selector based on assumptions. The separate button’s exact action has not been inspected.
 - Series detail page exposes title ("Укрытие"), original title (Silo), year, ratings, genres, country, director, writers, cast, premiere date, synopsis, poster/backdrop metadata, and season navigation.
 - The sample series advertises 3 seasons. Season 1 and season 2 pages each expose 10 episode names; season 3 is linked from the title page.
 - Public movie catalogue exposes genre/year/country/rating filters, sort options (popularity, rating, release date), and movie detail links.
 - Public series catalogue and updates pages expose lists of title links and ratings.
-- Inspection returned no iframe links and no directly exposed media URL in the parsed HTML. This is not proof that the interactive browser player has no playback; it means a direct stream path has NOT been established by this inspection.
+- Static HTML inspection returned no iframe links and no directly exposed media URL. The user screenshot confirms the page can render and play video in its browser player, but it does not reveal a permitted direct media endpoint. Direct Media3 playback therefore remains NOT ESTABLISHED.
 - Catalogue metadata and season/episode navigation appear technically parseable. Playback must be investigated separately using the site's permitted, user-facing flow. Do not defeat verification, DRM, authentication, paywalls, or other access controls.
 
 ## KinoBesplatno
@@ -48,8 +48,8 @@ Do not record guessed stream URLs. Do not evade bot protection, human verificati
 | Search/category navigation | PARTLY OBSERVED | PARTLY OBSERVED |
 | Movie details and artwork | CONFIRMED: sample movie page metadata and poster exposed | PARTLY OBSERVED |
 | Series seasons and episodes | CONFIRMED: 3 seasons; sample seasons 1 and 2 each list 10 episodes | CONFIRMED: sample lists 40 episodes |
-| Player choices (e.g. standard / 4K) | NOT CONFIRMED by static page extraction | NOT ESTABLISHED |
-| Playback page / player path | NOT ESTABLISHED | EMBED PAGE RETURNS HUMAN VERIFICATION |
+| Player choices (e.g. standard / 4K) | ONE visible player in user screenshot; no second player / 4K selector shown | NOT ESTABLISHED |
+| Playback page / player path | ONE browser player visibly plays in user screenshot; separate CTA action unknown | EMBED PAGE RETURNS HUMAN VERIFICATION |
 | Authorized direct playback path | NOT ESTABLISHED | NOT ESTABLISHED |
 | Media3 playback on Google TV | NOT TESTED | NOT TESTED |
 | Terms/access model reviewed | NOT TESTED | NOT TESTED |
