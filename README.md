@@ -40,3 +40,16 @@ The `feature/bootstrap` branch now contains the first native Android application
 The observer is diagnostic, not a stream extractor. It does not export third-party media URLs, cookies, signed query parameters, or authorization headers into Media3. For ZONA, the first implementation keeps playback inside the site's own WebView player unless a permitted external playback interface is established.
 
 Build status: pending first GitHub Actions run. No APK is claimed until CI succeeds.
+
+
+## Native video-library interface
+
+The app UI is being changed from a browser-first prototype to a native library:
+- Home screen with named source tiles (no address bar or manual URL entry).
+- Separate movie and series catalogues for active sources.
+- Native title cards and detail screen.
+- Dedicated playback screen without browser navigation chrome.
+- Current active catalogue adapters: ZONA and KinoBesplatno.
+- Other known sources (Kinogo, HDRezka, Filmix, Baskino, LordFilm, Seasonvar, Kinokrad) remain inactive until individually integrated and tested.
+
+See [Native library UX](docs/NATIVE_LIBRARY_UX.md).
