@@ -54,7 +54,7 @@ private fun parseListing(base: String, path: String, kind: CatalogKind, sourceNa
         }
         results.putIfAbsent(href, CatalogTitle(title, href, poster?.takeIf(String::isNotBlank), kind, sourceName))
     }
-    results.values.take(100)
+    return results.values.take(100)
 }
 
 private fun parseDetails(item: CatalogTitle, allowedHost: String): CatalogDetails {
@@ -93,7 +93,7 @@ private fun parseDetails(item: CatalogTitle, allowedHost: String): CatalogDetail
             }
         }
     }
-    CatalogDetails(title, description, year, facts.toList(), episodes.values.take(100))
+    return CatalogDetails(title, description, year, facts.toList(), episodes.values.take(100))
 }
 
 class ZonaCatalogSource : DetailedCatalogSource {
