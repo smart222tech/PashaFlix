@@ -50,6 +50,9 @@ class ExtensionRepositoryClient(
             val entry = entries.optJSONObject(index) ?: continue
             parseExtension(entry)?.let { extensions[it.id] = it }
         }
+        if (objectJson != null && objectJson.has("resources") && objectJson.has("types")) {
+            parseStremioManifest(objectJson)?.let { extensions[it.id] = it }
+        }
         val lists = objectJson?.optJSONArray("extensionLists")
         val childUrls = if (lists == null) emptyList() else
             (0 until lists.length()).map { lists.optString(it) }.filter { it.isNotBlank() }
@@ -59,6 +62,27 @@ class ExtensionRepositoryClient(
             website = objectJson?.optString("website")?.takeIf { it.isNotBlank() },
             extensionLists = childUrls,
             extensions = extensions.values.sortedBy { it.engine.priority }
+        )
+    }
+
+    private fun parseStremioManifest(json: JSONObject): SourceExtension? {
+        val id = json.optString("id").trim()
+        val name = json.optString("name").trim()
+        val resources = json.optJSONArray("resources") ?: return null
+        val supportsStream = (0 until resources.length()).any { index ->
+            val value = resources.opt(index)
+            value == "stream" || (value is JSONObject && value.optString("name") == "stream")
+        }
+        if (id.isBlank() || name.isBlank() || !supportsStream) return null
+        return SourceExtension(
+            id = id.replace(Regex("[^a-zA-Z0-9._-]"), "-").take(80),
+            name = name,
+            description = "Stremio add-on",
+            version = json.optString("version", "1.0.0"),
+            apiVersion = API_VERSION,
+            language = "Multi",
+            status = 3,
+            engine = SourceEngine(type = "stremio", endpoint = null, priority = 100)
         )
     }
 
