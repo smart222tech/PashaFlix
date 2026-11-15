@@ -1,7 +1,7 @@
 name: Android CI
 on:
   push:
-    branches: [ main, feature/bootstrap ]
+    branches: [ main, feature/bootstrap, feature/openstream-integration ]
   pull_request:
     branches: [ main ]
 permissions:
