@@ -27,7 +27,7 @@ import coil.compose.AsyncImage
 import com.smart222tech.pashaflix.catalog.*
 import com.smart222tech.pashaflix.library.LibraryStore
 
-private enum class Screen { HOME, CATALOG, DETAILS, PLAYBACK, FAVORITES, HISTORY }
+private enum class Screen { HOME, CATALOG, DETAILS, PLAYBACK, FAVORITES, HISTORY, EXTENSIONS }
 private val bg = Color(0xFF0D1117)
 private val panel = Color(0xFF18212B)
 private val blue = Color(0xFF28A9E8)
@@ -82,7 +82,8 @@ fun PashaFlixScreen(modifier: Modifier = Modifier) {
         Screen.HOME -> Home(modifier, sources,
             onSource = { source = it; kind = CatalogKind.MOVIE; screen = Screen.CATALOG },
             onFavorites = { libraryVersion++; screen = Screen.FAVORITES },
-            onHistory = { libraryVersion++; screen = Screen.HISTORY })
+            onHistory = { libraryVersion++; screen = Screen.HISTORY },
+            onExtensions = { screen = Screen.EXTENSIONS })
         Screen.CATALOG -> Catalog(modifier, source.displayName, kind, titles, loading, error,
             onKind = { kind = it }, onBack = { screen = Screen.HOME },
             onSelect = { selected = it; screen = Screen.DETAILS })
@@ -97,6 +98,7 @@ fun PashaFlixScreen(modifier: Modifier = Modifier) {
             { screen = Screen.HOME }, { selected = it; source = sourceFor(it, sources); screen = Screen.DETAILS })
         Screen.HISTORY -> LibraryPage(modifier, "История просмотров", library.history(), libraryVersion,
             { screen = Screen.HOME }, { selected = it; source = sourceFor(it, sources); screen = Screen.DETAILS })
+        Screen.EXTENSIONS -> SourceMarketplaceScreen(modifier) { screen = Screen.HOME }
     }
 }
 
@@ -106,7 +108,10 @@ private fun sourceFor(item: CatalogTitle, sources: List<DetailedCatalogSource>) 
 @Composable
 private fun Home(
     modifier: Modifier, sources: List<DetailedCatalogSource>,
-    onSource: (DetailedCatalogSource) -> Unit, onFavorites: () -> Unit, onHistory: () -> Unit
+    onSource: (DetailedCatalogSource) -> Unit,
+    onFavorites: () -> Unit,
+    onHistory: () -> Unit,
+    onExtensions: () -> Unit
 ) {
     Column(modifier.fillMaxSize().background(bg).padding(28.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
         Text("PASHAFLIX", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
@@ -114,6 +119,7 @@ private fun Home(
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = onFavorites) { Text("♡  Избранное") }
             OutlinedButton(onClick = onHistory) { Text("◷  История") }
+            OutlinedButton(onClick = onExtensions) { Text("＋ Источники") }
         }
         Text("ВЫБЕРИ КИНОТЕКУ", color = blue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
         LazyVerticalGrid(GridCells.Adaptive(210.dp), Modifier.fillMaxWidth().weight(1f),
