@@ -145,6 +145,7 @@ class ExtensionRepositoryClient(
         }
         try {
             val status = connection.responseCode
+            require(connection.url.protocol.equals("https", ignoreCase = true)) { "Repository redirected away from HTTPS" }
             require(status in 200..299) { "Repository returned HTTP $status" }
             val body = connection.inputStream.bufferedReader().use { it.readText() }
             require(body.length <= MAX_DOCUMENT_CHARS) { "Repository document is too large" }
