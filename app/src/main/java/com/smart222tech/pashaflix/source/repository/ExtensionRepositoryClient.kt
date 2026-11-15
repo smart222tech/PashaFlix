@@ -19,39 +19,46 @@ class ExtensionRepositoryClient(
     suspend fun load(repositoryUrl: String): SourceRepository = withContext(Dispatchers.IO) {
         val visited = linkedSetOf<String>()
         val allExtensions = linkedMapOf<String, SourceExtension>()
-        var rootName = "External repository"
-        var rootDescription = ""
-        var rootWebsite: String? = null
+        var root: SourceRepository? = null
 
         suspend fun visit(rawUrl: String, isRoot: Boolean) {
             if (visited.size >= maxDocuments) return
             val normalized = normalizeRepositoryUrl(rawUrl)
             if (!visited.add(normalized)) return
-            val document = JSONObject(readHttps(normalized))
-            if (isRoot) {
-                rootName = document.optString("name", rootName)
-                rootDescription = document.optString("description", "")
-                rootWebsite = document.optString("website").takeIf { it.isNotBlank() }
-            }
-            val entries = document.optJSONArray("extensions") ?: JSONArray()
-            for (index in 0 until entries.length()) {
-                val entry = entries.optJSONObject(index) ?: continue
-                parseExtension(entry)?.let { allExtensions[it.id] = it }
-            }
-            val lists = document.optJSONArray("extensionLists") ?: JSONArray()
-            for (index in 0 until lists.length()) {
-                val child = lists.optString(index).trim()
-                if (child.isNotEmpty()) visit(child, false)
+            val parsed = parseDocument(readHttps(normalized), "External repository")
+            if (isRoot) root = parsed
+            parsed.extensions.forEach { allExtensions[it.id] = it }
+            parsed.extensionLists.forEach { child ->
+                if (child.isNotBlank()) visit(child, false)
             }
         }
 
         visit(repositoryUrl, true)
-        SourceRepository(
-            name = rootName,
-            description = rootDescription,
-            website = rootWebsite,
+        val header = root ?: SourceRepository("External repository")
+        header.copy(
             extensionLists = visited.toList().drop(1),
             extensions = allExtensions.values.sortedBy { it.engine.priority }
+        )
+    }
+
+    fun parseDocument(raw: String, fallbackName: String = "PashaFlix repository"): SourceRepository {
+        val objectJson = runCatching { JSONObject(raw) }.getOrNull()
+        val arrayJson = if (objectJson == null) runCatching { JSONArray(raw) }.getOrNull() else null
+        val entries = objectJson?.optJSONArray("extensions") ?: arrayJson ?: JSONArray()
+        val extensions = linkedMapOf<String, SourceExtension>()
+        for (index in 0 until entries.length()) {
+            val entry = entries.optJSONObject(index) ?: continue
+            parseExtension(entry)?.let { extensions[it.id] = it }
+        }
+        val lists = objectJson?.optJSONArray("extensionLists")
+        val childUrls = if (lists == null) emptyList() else
+            (0 until lists.length()).map { lists.optString(it) }.filter { it.isNotBlank() }
+        return SourceRepository(
+            name = objectJson?.optString("name")?.takeIf { it.isNotBlank() } ?: fallbackName,
+            description = objectJson?.optString("description") ?: "",
+            website = objectJson?.optString("website")?.takeIf { it.isNotBlank() },
+            extensionLists = childUrls,
+            extensions = extensions.values.sortedBy { it.engine.priority }
         )
     }
 
