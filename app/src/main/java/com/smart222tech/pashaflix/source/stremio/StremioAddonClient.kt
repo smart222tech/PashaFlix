@@ -63,7 +63,7 @@ class StremioAddonClient(
         withContext(Dispatchers.IO) {
             require(type == "movie" || type == "series") { "Unsupported Stremio type" }
             val base = normalizeBaseUrl(baseUrl)
-            val encodedId = URLEncoder.encode(id, Charsets.UTF_8.name()).replace("+", "%20")
+            val encodedId = URLEncoder.encode(id, Charsets.UTF_8.name()).replace("+", "%20").replace("%3A", ":")
             val json = JSONObject(getHttps("$base/stream/$type/$encodedId.json"))
             val streams = json.optJSONArray("streams") ?: return@withContext emptyList()
             buildList {
@@ -129,6 +129,7 @@ class StremioAddonClient(
         }
         try {
             val status = connection.responseCode
+            require(connection.url.protocol.equals("https", ignoreCase = true)) { "Add-on redirected away from HTTPS" }
             require(status in 200..299) { "Add-on returned HTTP $status" }
             val body = connection.inputStream.bufferedReader().use { it.readText() }
             require(body.length <= 2_000_000) { "Add-on response is too large" }
