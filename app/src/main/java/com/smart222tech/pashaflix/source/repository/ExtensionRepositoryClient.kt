@@ -25,9 +25,19 @@ class ExtensionRepositoryClient(
             if (visited.size >= maxDocuments) return
             val normalized = normalizeRepositoryUrl(rawUrl)
             if (!visited.add(normalized)) return
-            val parsed = parseDocument(readHttps(normalized), "External repository")
-            if (isRoot) root = parsed
-            parsed.extensions.forEach { allExtensions[it.id] = it }
+            val rawDocument = readHttps(normalized)
+            val parsed = parseDocument(rawDocument, "External repository")
+            val isStremioManifest = runCatching {
+                val manifest = JSONObject(rawDocument)
+                manifest.has("resources") && manifest.has("types")
+            }.getOrDefault(false)
+            val resolved = if (isStremioManifest) parsed.copy(
+                extensions = parsed.extensions.map { extension ->
+                    extension.copy(engine = extension.engine.copy(endpoint = normalized.removeSuffix("/manifest.json")))
+                }
+            ) else parsed
+            if (isRoot) root = resolved
+            resolved.extensions.forEach { allExtensions[it.id] = it }
             parsed.extensionLists.forEach { child ->
                 if (child.isNotBlank()) visit(child, false)
             }
