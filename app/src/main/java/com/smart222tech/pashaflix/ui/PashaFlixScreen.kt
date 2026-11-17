@@ -26,6 +26,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import com.smart222tech.pashaflix.catalog.*
 import com.smart222tech.pashaflix.library.LibraryStore
+import com.smart222tech.pashaflix.browser.BrowserActivity
+import com.smart222tech.pashaflix.browser.SiteStore
+import android.content.Intent
 
 private enum class Screen { HOME, CATALOG, DETAILS, PLAYBACK, FAVORITES, HISTORY }
 private val bg = Color(0xFF0D1117)
@@ -38,6 +41,7 @@ fun PashaFlixScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val sources = remember { listOf<DetailedCatalogSource>(ZonaCatalogSource(), KinoBesplatnoCatalogSource()) }
     val library = remember { LibraryStore(context.applicationContext) }
+    val siteStore = remember { SiteStore(context.applicationContext) }
     var screen by remember { mutableStateOf(Screen.HOME) }
     var source by remember { mutableStateOf(sources.first()) }
     var kind by remember { mutableStateOf(CatalogKind.MOVIE) }
@@ -82,7 +86,9 @@ fun PashaFlixScreen(modifier: Modifier = Modifier) {
         Screen.HOME -> Home(modifier, sources,
             onSource = { source = it; kind = CatalogKind.MOVIE; screen = Screen.CATALOG },
             onFavorites = { libraryVersion++; screen = Screen.FAVORITES },
-            onHistory = { libraryVersion++; screen = Screen.HISTORY })
+            onHistory = { libraryVersion++; screen = Screen.HISTORY },
+            onOpenSite = { site -> context.startActivity(Intent(context, BrowserActivity::class.java).putExtra("name", site.name).putExtra("url", site.url)) },
+            savedSites = siteStore.all(), onAddSite = { name, url -> siteStore.add(name, url) })
         Screen.CATALOG -> Catalog(modifier, source.displayName, kind, titles, loading, error,
             onKind = { kind = it }, onBack = { screen = Screen.HOME },
             onSelect = { selected = it; screen = Screen.DETAILS })
@@ -115,11 +121,11 @@ private fun Home(
             OutlinedButton(onClick = onFavorites) { Text("♡  Избранное") }
             OutlinedButton(onClick = onHistory) { Text("◷  История") }
         }
-        Text("ВЫБЕРИ КИНОТЕКУ", color = blue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {\n            Text("САЙТЫ И КИНОТЕКИ", color = blue, fontSize = 13.sp, fontWeight = FontWeight.Bold)\n            OutlinedButton(onClick = { addDialog = true; siteError = null }) { Text("+ Добавить сайт") }\n        }
         LazyVerticalGrid(GridCells.Adaptive(210.dp), Modifier.fillMaxWidth().weight(1f),
             contentPadding = PaddingValues(bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            items(sources) { src -> SourceCard(src.displayName, true) { onSource(src) } }
+            items(sources) { src -> SourceCard(src.displayName, true) { onSource(src) } }\n            items(savedSites) { site -> SourceCard(site.name, true) { onOpenSite(site) } }
             items(listOf("Kinogo", "HDRezka", "Filmix", "Baskino", "LordFilm", "Seasonvar", "Kinokrad")) {
                 name -> SourceCard(name, false) {}
             }
