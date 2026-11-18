@@ -34,6 +34,8 @@ class MainActivity : Activity() {
             settings.loadsImagesAutomatically = true
             settings.useWideViewPort = true
             settings.loadWithOverviewMode = false
+            // Atodo's TV layout is oversized; zoom out by 20 percent by default.
+            setInitialScale(80)
             settings.builtInZoomControls = false
             settings.displayZoomControls = false
 
