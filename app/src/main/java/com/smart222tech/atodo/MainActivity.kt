@@ -95,7 +95,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
                 .translationZ(if(focus)dp(18).toFloat() else 0f).setDuration(170).start()
             v.elevation=if(focus)dp(18).toFloat() else dp(3).toFloat()
             v.background=cardBg(lib.color,focus);label.setTextColor(if(focus)lib.color else Color.WHITE)
-            if(focus) label.setShadowLayer(dp(16).toFloat(),0f,0f,lib.color) else label.clearShadowLayer()
+            if(focus) label.setShadowLayer(dp(16).toFloat(),0f,0f,lib.color) else label.setShadowLayer(0f,0f,0f,Color.TRANSPARENT)
         }
         card.setOnClickListener{openLibrary(lib)}
         card.setOnKeyListener{_,key,event->
