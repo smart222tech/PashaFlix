@@ -77,6 +77,7 @@ class MainActivity : Activity() {
         super.onSaveInstanceState(outState)
     }
 
+    @Deprecated("Deprecated by Android; retained for broad Android TV compatibility")
     override fun onBackPressed() {
         if (::webView.isInitialized && webView.canGoBack()) {
             webView.goBack()
@@ -86,25 +87,22 @@ class MainActivity : Activity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        // Let WebView handle D-pad arrows, OK/Enter and media keys so the portal
-        // can manage its own focus and remote-control navigation.
-        return if (::webView.isInitialized &&
-            keyCode in listOf(
-                KeyEvent.KEYCODE_DPAD_UP,
-                KeyEvent.KEYCODE_DPAD_DOWN,
-                KeyEvent.KEYCODE_DPAD_LEFT,
-                KeyEvent.KEYCODE_DPAD_RIGHT,
-                KeyEvent.KEYCODE_DPAD_CENTER,
-                KeyEvent.KEYCODE_ENTER,
-                KeyEvent.KEYCODE_MEDIA_PLAY,
-                KeyEvent.KEYCODE_MEDIA_PAUSE,
-                KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
-            )
-        ) {
-            webView.dispatchKeyEvent(event)
-        } else {
-            super.onKeyDown(keyCode, event)
+        // Forward TV remote navigation and media keys into the portal's WebView.
+        val remoteKey = keyCode in setOf(
+            KeyEvent.KEYCODE_DPAD_UP,
+            KeyEvent.KEYCODE_DPAD_DOWN,
+            KeyEvent.KEYCODE_DPAD_LEFT,
+            KeyEvent.KEYCODE_DPAD_RIGHT,
+            KeyEvent.KEYCODE_DPAD_CENTER,
+            KeyEvent.KEYCODE_ENTER,
+            KeyEvent.KEYCODE_MEDIA_PLAY,
+            KeyEvent.KEYCODE_MEDIA_PAUSE,
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+        )
+        if (::webView.isInitialized && remoteKey && event != null) {
+            return webView.dispatchKeyEvent(event)
         }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onDestroy() {
