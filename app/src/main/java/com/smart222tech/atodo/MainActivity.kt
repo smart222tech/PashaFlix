@@ -26,13 +26,14 @@ import kotlin.concurrent.thread
 class MainActivity : Activity(), TextToSpeech.OnInitListener {
     private lateinit var root: FrameLayout
     private var webView: WebView? = null
+    private var remoteCursor: RemoteCursor? = null
     private var fullView: View? = null
     private var fullCallback: WebChromeClient.CustomViewCallback? = null
     private var tts: TextToSpeech? = null
     private data class Library(val title:String,val url:String,val domain:String,val letter:String,val color:Int)
     private val libraries = listOf(
         Library("Atodo","https://msx.atodo.fun","msx.atodo.fun","A",Color.rgb(80,190,255)),
-        Library("Зона","http://m.zona.ms","m.zona.ms","Z",Color.rgb(255,83,103)),
+        Library("Зона","https://w140.zona.plus/","w140.zona.plus","Z",Color.rgb(255,83,103)),
         Library("Лампа","http://lampa.maxvol.pro","lampa.maxvol.pro","L",Color.rgb(255,190,55))
     )
     private fun dp(v:Int)=(v*resources.displayMetrics.density).toInt()
@@ -45,7 +46,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     }
 
     private fun showHome(){
-        webView?.let{it.stopLoading();it.destroy()};webView=null;root.removeAllViews()
+        webView?.let{it.stopLoading();it.destroy()};webView=null;remoteCursor=null;root.removeAllViews()
         val scroll=ScrollView(this).apply{isFillViewport=true;overScrollMode=View.OVER_SCROLL_NEVER}
         val page=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER_HORIZONTAL;setPadding(dp(26),dp(20),dp(26),dp(20))}
         scroll.addView(page,FrameLayout.LayoutParams(-1,-2))
@@ -140,7 +141,14 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
                 override fun shouldOverrideUrlLoading(view:WebView?,request:WebResourceRequest?)=false
             }
         }
-        webView=web;root.addView(web,FrameLayout.LayoutParams(-1,-1));web.loadUrl(lib.url);web.requestFocus(View.FOCUS_DOWN)
+        webView=web
+        val webContainer=FrameLayout(this)
+        webContainer.addView(web,FrameLayout.LayoutParams(-1,-1))
+        val cursor=RemoteCursor(this,web)
+        remoteCursor=cursor
+        webContainer.addView(cursor,FrameLayout.LayoutParams(-1,-1))
+        root.addView(webContainer,FrameLayout.LayoutParams(-1,-1))
+        web.loadUrl(lib.url);web.requestFocus(View.FOCUS_DOWN)
     }
 
     private fun hideFullView(){
@@ -178,6 +186,43 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
         }
     }
 
+
+private class RemoteCursor(context: android.content.Context, private val target: WebView) : View(context) {
+    private val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+    private var cx = 0f
+    private var cy = 0f
+    private val step = (32f * resources.displayMetrics.density)
+    init { isClickable = false; isFocusable = false }
+    private fun centerIfNeeded() {
+        if (cx == 0f || cy == 0f) { cx = width / 2f; cy = height / 2f }
+    }
+    fun move(dx: Int, dy: Int) {
+        centerIfNeeded()
+        cx = (cx + dx * step).coerceIn(18f, (width - 18).coerceAtLeast(18).toFloat())
+        cy = (cy + dy * step).coerceIn(18f, (height - 18).coerceAtLeast(18).toFloat())
+        invalidate()
+    }
+    fun clickTarget() {
+        centerIfNeeded()
+        val now = android.os.SystemClock.uptimeMillis()
+        target.dispatchTouchEvent(android.view.MotionEvent.obtain(now, now, android.view.MotionEvent.ACTION_DOWN, cx, cy, 0))
+        target.dispatchTouchEvent(android.view.MotionEvent.obtain(now, now + 70, android.view.MotionEvent.ACTION_UP, cx, cy, 0))
+    }
+    override fun onDraw(canvas: android.graphics.Canvas) {
+        super.onDraw(canvas); centerIfNeeded()
+        paint.style = android.graphics.Paint.Style.FILL
+        paint.color = android.graphics.Color.argb(65, 255, 55, 55)
+        canvas.drawCircle(cx, cy, 15f * resources.displayMetrics.density, paint)
+        paint.style = android.graphics.Paint.Style.STROKE
+        paint.strokeWidth = 2.4f * resources.displayMetrics.density
+        paint.color = android.graphics.Color.WHITE
+        canvas.drawCircle(cx, cy, 11f * resources.displayMetrics.density, paint)
+        paint.style = android.graphics.Paint.Style.FILL
+        paint.color = android.graphics.Color.rgb(255, 65, 65)
+        canvas.drawCircle(cx, cy, 3.5f * resources.displayMetrics.density, paint)
+    }
+}
+
     private fun hideSystemUi(){
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility=(View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
@@ -194,11 +239,19 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     }
     override fun onKeyDown(keyCode:Int,event:KeyEvent?):Boolean{
         val web=webView
-        val keys=keyCode in setOf(KeyEvent.KEYCODE_DPAD_UP,KeyEvent.KEYCODE_DPAD_DOWN,KeyEvent.KEYCODE_DPAD_LEFT,
-            KeyEvent.KEYCODE_DPAD_RIGHT,KeyEvent.KEYCODE_DPAD_CENTER,KeyEvent.KEYCODE_ENTER,
-            KeyEvent.KEYCODE_MEDIA_PLAY,KeyEvent.KEYCODE_MEDIA_PAUSE,KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+        if(web!=null && fullView==null && event!=null) {
+            val cursor=remoteCursor
+            if(cursor!=null) when(keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> { cursor.move(0,-1); return true }
+                KeyEvent.KEYCODE_DPAD_DOWN -> { cursor.move(0,1); return true }
+                KeyEvent.KEYCODE_DPAD_LEFT -> { cursor.move(-1,0); return true }
+                KeyEvent.KEYCODE_DPAD_RIGHT -> { cursor.move(1,0); return true }
+                KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> { cursor.clickTarget(); return true }
+            }
+        }
+        val keys=keyCode in setOf(KeyEvent.KEYCODE_MEDIA_PLAY,KeyEvent.KEYCODE_MEDIA_PAUSE,KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
         if(web!=null&&keys&&event!=null)return(fullView?:web).dispatchKeyEvent(event)
         return super.onKeyDown(keyCode,event)
     }
-    override fun onDestroy(){tts?.stop();tts?.shutdown();webView?.stopLoading();webView?.destroy();super.onDestroy()}
+    override fun onDestroy(){tts?.stop();tts?.shutdown();remoteCursor=null;webView?.stopLoading();webView?.destroy();super.onDestroy()}
 }
