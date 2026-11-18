@@ -24,7 +24,6 @@ class MainActivity : Activity() {
             setBackgroundColor(android.graphics.Color.BLACK)
             isFocusable = true
             isFocusableInTouchMode = true
-
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             settings.databaseEnabled = true
@@ -36,34 +35,23 @@ class MainActivity : Activity() {
             settings.loadWithOverviewMode = false
             settings.builtInZoomControls = false
             settings.displayZoomControls = false
-
             webChromeClient = WebChromeClient()
             webViewClient = object : WebViewClient() {
-                override fun shouldOverrideUrlLoading(
-                    view: WebView?,
-                    request: WebResourceRequest?
-                ): Boolean = false
+                override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean = false
             }
         }
 
         setContentView(webView)
-        if (savedInstanceState == null) {
-            webView.loadUrl(ATODO_URL)
-        } else {
-            webView.restoreState(savedInstanceState)
-        }
+        if (savedInstanceState == null) webView.loadUrl(ZONA_URL) else webView.restoreState(savedInstanceState)
         webView.requestFocus(View.FOCUS_DOWN)
     }
 
     private fun hideSystemUi() {
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility = (
-            View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
             )
     }
 
@@ -79,29 +67,18 @@ class MainActivity : Activity() {
 
     @Deprecated("Deprecated by Android; retained for broad Android TV compatibility")
     override fun onBackPressed() {
-        if (::webView.isInitialized && webView.canGoBack()) {
-            webView.goBack()
-        } else {
-            super.onBackPressed()
-        }
+        if (::webView.isInitialized && webView.canGoBack()) webView.goBack() else super.onBackPressed()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        // Forward TV remote navigation and media keys into the portal's WebView.
         val remoteKey = keyCode in setOf(
-            KeyEvent.KEYCODE_DPAD_UP,
-            KeyEvent.KEYCODE_DPAD_DOWN,
-            KeyEvent.KEYCODE_DPAD_LEFT,
-            KeyEvent.KEYCODE_DPAD_RIGHT,
-            KeyEvent.KEYCODE_DPAD_CENTER,
-            KeyEvent.KEYCODE_ENTER,
-            KeyEvent.KEYCODE_MEDIA_PLAY,
-            KeyEvent.KEYCODE_MEDIA_PAUSE,
+            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN,
+            KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT,
+            KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER,
+            KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PAUSE,
             KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
         )
-        if (::webView.isInitialized && remoteKey && event != null) {
-            return webView.dispatchKeyEvent(event)
-        }
+        if (::webView.isInitialized && remoteKey && event != null) return webView.dispatchKeyEvent(event)
         return super.onKeyDown(keyCode, event)
     }
 
@@ -114,6 +91,6 @@ class MainActivity : Activity() {
     }
 
     companion object {
-        private const val ATODO_URL = "https://msx.atodo.fun"
+        private const val ZONA_URL = "http://m.zona.ms"
     }
 }
