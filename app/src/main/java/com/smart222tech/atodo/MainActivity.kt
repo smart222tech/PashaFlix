@@ -125,6 +125,8 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
             settings.mediaPlaybackRequiresUserGesture=false;settings.javaScriptCanOpenWindowsAutomatically=true
             settings.setSupportMultipleWindows(false);settings.loadsImagesAutomatically=true
             settings.useWideViewPort=true;settings.loadWithOverviewMode=false
+            // Atodo's TV layout is oversized; start it at 80% while leaving Lampa unchanged.
+            if(lib.title=="Atodo") setInitialScale(80)
             settings.builtInZoomControls=false;settings.displayZoomControls=false
             CookieManager.getInstance().setAcceptCookie(true);CookieManager.getInstance().setAcceptThirdPartyCookies(this,true)
             webChromeClient=object:WebChromeClient(){
