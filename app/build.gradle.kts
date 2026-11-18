@@ -8,7 +8,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.smart222tech.atodo"
+        applicationId = "com.smart222tech.lampa"
         minSdk = 23
         targetSdk = 35
         versionCode = 1
