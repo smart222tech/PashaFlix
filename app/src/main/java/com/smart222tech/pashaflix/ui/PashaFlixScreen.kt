@@ -111,9 +111,20 @@ private fun sourceFor(item: CatalogTitle, sources: List<DetailedCatalogSource>) 
 
 @Composable
 private fun Home(
-    modifier: Modifier, sources: List<DetailedCatalogSource>,
-    onSource: (DetailedCatalogSource) -> Unit, onFavorites: () -> Unit, onHistory: () -> Unit
+    modifier: Modifier,
+    sources: List<DetailedCatalogSource>,
+    onSource: (DetailedCatalogSource) -> Unit,
+    onFavorites: () -> Unit,
+    onHistory: () -> Unit,
+    onOpenSite: (com.smart222tech.pashaflix.browser.SavedSite) -> Unit,
+    savedSites: List<com.smart222tech.pashaflix.browser.SavedSite>,
+    onAddSite: (String, String) -> Boolean
 ) {
+    var addDialog by remember { mutableStateOf(false) }
+    var siteName by remember { mutableStateOf("") }
+    var siteUrl by remember { mutableStateOf("") }
+    var siteError by remember { mutableStateOf<String?>(null) }
+
     Column(modifier.fillMaxSize().background(bg).padding(28.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
         Text("PASHAFLIX", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
         Text("Твоя видеотека", color = muted, fontSize = 18.sp)
@@ -121,16 +132,64 @@ private fun Home(
             OutlinedButton(onClick = onFavorites) { Text("♡  Избранное") }
             OutlinedButton(onClick = onHistory) { Text("◷  История") }
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {\n            Text("САЙТЫ И КИНОТЕКИ", color = blue, fontSize = 13.sp, fontWeight = FontWeight.Bold)\n            OutlinedButton(onClick = { addDialog = true; siteError = null }) { Text("+ Добавить сайт") }\n        }
-        LazyVerticalGrid(GridCells.Adaptive(210.dp), Modifier.fillMaxWidth().weight(1f),
-            contentPadding = PaddingValues(bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            items(sources) { src -> SourceCard(src.displayName, true) { onSource(src) } }\n            items(savedSites) { site -> SourceCard(site.name, true) { onOpenSite(site) } }
-            items(listOf("Kinogo", "HDRezka", "Filmix", "Baskino", "LordFilm", "Seasonvar", "Kinokrad")) {
-                name -> SourceCard(name, false) {}
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("САЙТЫ И КИНОТЕКИ", color = blue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            OutlinedButton(onClick = { addDialog = true; siteError = null }) { Text("+ Добавить сайт") }
+        }
+        LazyVerticalGrid(
+            GridCells.Adaptive(210.dp),
+            Modifier.fillMaxWidth().weight(1f),
+            contentPadding = PaddingValues(bottom = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            items(sources) { src -> SourceCard(src.displayName, true) { onSource(src) } }
+            items(savedSites) { site -> SourceCard(site.name, true) { onOpenSite(site) } }
+            items(listOf("Kinogo", "HDRezka", "Filmix", "Baskino", "LordFilm", "Seasonvar", "Kinokrad")) { name ->
+                SourceCard(name, false) {}
             }
         }
-        Text("Новые источники подключаются после проверки каталога и способа просмотра.", color = muted, fontSize = 12.sp)
+        Text("Добавленные сайты открываются во встроенном браузере. MENU переключает режим курсора и обычного фокуса.", color = muted, fontSize = 12.sp)
+    }
+
+    if (addDialog) {
+        AlertDialog(
+            onDismissRequest = { addDialog = false },
+            title = { Text("Добавить сайт") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = siteName,
+                        onValueChange = { siteName = it },
+                        label = { Text("Название, например FilmPalast") },
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = siteUrl,
+                        onValueChange = { siteUrl = it },
+                        label = { Text("Адрес сайта") },
+                        singleLine = true
+                    )
+                    siteError?.let { Text(it, color = Color(0xFFFFB4A9)) }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (siteName.isBlank() || siteUrl.isBlank()) {
+                        siteError = "Укажи название и адрес сайта"
+                    } else if (onAddSite(siteName, siteUrl)) {
+                        addDialog = false
+                        siteName = ""
+                        siteUrl = ""
+                    } else {
+                        siteError = "Проверь адрес сайта (http или https)"
+                    }
+                }) { Text("Сохранить") }
+            },
+            dismissButton = {
+                TextButton(onClick = { addDialog = false }) { Text("Отмена") }
+            }
+        )
     }
 }
 
