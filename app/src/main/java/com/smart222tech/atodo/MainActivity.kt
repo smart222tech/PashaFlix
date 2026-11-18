@@ -92,8 +92,10 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
         card.addView(TextView(this).apply{text="(RU · UA · EN)";textSize=11f;gravity=Gravity.CENTER;setTextColor(Color.rgb(164,176,199))},LinearLayout.LayoutParams(-1,dp(22)))
         card.setOnFocusChangeListener{v,focus->
             v.animate().scaleX(if(focus)1.06f else 1f).scaleY(if(focus)1.06f else 1f)
-                .translationZ(if(focus)dp(16).toFloat() else 0f).setDuration(170).start()
+                .translationZ(if(focus)dp(18).toFloat() else 0f).setDuration(170).start()
+            v.elevation=if(focus)dp(18).toFloat() else dp(3).toFloat()
             v.background=cardBg(lib.color,focus);label.setTextColor(if(focus)lib.color else Color.WHITE)
+            if(focus) label.setShadowLayer(dp(16).toFloat(),0f,0f,lib.color) else label.clearShadowLayer()
         }
         card.setOnClickListener{openLibrary(lib)}
         card.setOnKeyListener{_,key,event->
