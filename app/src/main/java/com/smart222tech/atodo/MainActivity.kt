@@ -48,7 +48,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
         webView?.let{it.stopLoading();it.destroy()};webView=null;root.removeAllViews()
         val scroll=ScrollView(this).apply{isFillViewport=true;overScrollMode=View.OVER_SCROLL_NEVER}
         val page=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER_HORIZONTAL;setPadding(dp(26),dp(20),dp(26),dp(20))}
-        scroll.addView(page,ScrollView.LayoutParams(-1,-2))
+        scroll.addView(page,FrameLayout.LayoutParams(-1,-2))
         page.addView(TextView(this).apply{
             text="KinoFlix";textSize=38f;typeface=android.graphics.Typeface.create("sans-serif-black",1)
             gravity=Gravity.CENTER;setTextColor(Color.WHITE);setShadowLayer(dp(18).toFloat(),0f,0f,Color.rgb(255,100,45))
