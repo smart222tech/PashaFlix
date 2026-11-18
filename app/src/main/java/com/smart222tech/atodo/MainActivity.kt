@@ -67,16 +67,7 @@ class MainActivity : Activity() {
                 }
 
                 override fun onHideCustomView() {
-                    customView?.let { root.removeView(it) }
-                    customView = null
-                    customViewCallback?.onCustomViewHidden()
-                    customViewCallback = null
-                    root.addView(webView, FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT
-                    ))
-                    hideSystemUi()
-                    webView.requestFocus()
+                    hideCustomView()
                 }
             }
             webViewClient = object : WebViewClient() {
@@ -99,6 +90,21 @@ class MainActivity : Activity() {
             webView.restoreState(savedInstanceState)
         }
         webView.requestFocus(View.FOCUS_DOWN)
+    }
+
+    private fun hideCustomView() {
+        customView?.let { root.removeView(it) }
+        customView = null
+        customViewCallback?.onCustomViewHidden()
+        customViewCallback = null
+        if (::webView.isInitialized && webView.parent == null) {
+            root.addView(webView, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            ))
+        }
+        hideSystemUi()
+        if (::webView.isInitialized) webView.requestFocus()
     }
 
     private fun hideSystemUi() {
@@ -126,7 +132,7 @@ class MainActivity : Activity() {
     @Deprecated("Deprecated by Android; retained for broad Android TV compatibility")
     override fun onBackPressed() {
         if (customView != null) {
-            (webView.webChromeClient as? WebChromeClient)?.onHideCustomView()
+            hideCustomView()
         } else if (::webView.isInitialized && webView.canGoBack()) {
             webView.goBack()
         } else {
