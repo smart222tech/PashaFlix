@@ -133,7 +133,8 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
             settings.javaScriptEnabled=true;settings.domStorageEnabled=true;settings.databaseEnabled=true
             settings.mediaPlaybackRequiresUserGesture=false;settings.javaScriptCanOpenWindowsAutomatically=true
             settings.setSupportMultipleWindows(false);settings.loadsImagesAutomatically=true
-            settings.useWideViewPort=true;settings.loadWithOverviewMode=true;settings.setSupportZoom(true);settings.textZoom=100
+            settings.useWideViewPort=true;settings.loadWithOverviewMode=true
+            settings.builtInZoomControls=false;settings.displayZoomControls=false
             // Apply one WebView scale only; the previous second CSS zoom made Atodo tiny.
             settings.builtInZoomControls=false;settings.displayZoomControls=false
             CookieManager.getInstance().setAcceptCookie(true);CookieManager.getInstance().setAcceptThirdPartyCookies(this,true)
@@ -149,12 +150,13 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
                 override fun shouldOverrideUrlLoading(view:WebView?,request:WebResourceRequest?)=false
                 override fun onPageFinished(view:WebView?,url:String?){
                     super.onPageFinished(view,url)
-                    if(lib.title=="Atodo") view?.postDelayed({ view.zoomBy(0.65f) }, 1200)
+
                 }
             }
         }
         webView=web
         root.addView(web,FrameLayout.LayoutParams(-1,-1))
+        if(lib.title=="Atodo") web.setInitialScale(80)
         web.loadUrl(lib.url);web.requestFocus(View.FOCUS_DOWN)
     }
 
