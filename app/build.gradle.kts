@@ -15,3 +15,6 @@ android {
  compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
  kotlinOptions { jvmTarget = "17" }
 }
+dependencies {
+    implementation("org.mozilla.geckoview:geckoview:162.0.20261119041057")
+}
