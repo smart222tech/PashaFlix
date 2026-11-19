@@ -4,7 +4,7 @@ plugins {
 }
 android {
  namespace = "com.smart222tech.kinoflix"
- compileSdk = 36
+ compileSdk = 35
  defaultConfig {
   applicationId = "com.smart222tech.kinoflix"
   minSdk = 23
@@ -16,5 +16,5 @@ android {
  kotlinOptions { jvmTarget = "17" }
 }
 dependencies {
-    implementation("org.mozilla.geckoview:geckoview:160.0.20261104181552")
+    implementation("org.mozilla.geckoview:geckoview:140.0.20250707120347")
 }
