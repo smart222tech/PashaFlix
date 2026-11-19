@@ -33,6 +33,8 @@ class MainActivity : Activity() {
             settings.setSupportMultipleWindows(false)
             settings.loadsImagesAutomatically = true
             settings.useWideViewPort = true
+            settings.loadWithOverviewMode = true
+            settings.userAgentString = DESKTOP_USER_AGENT
             settings.builtInZoomControls = false
             settings.displayZoomControls = false
 
@@ -120,5 +122,6 @@ class MainActivity : Activity() {
 
     companion object {
         private const val ATODO_URL = "https://msx.atodo.fun"
+        private const val DESKTOP_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
     }
 }
