@@ -46,7 +46,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     private fun showHome(){
         webView?.let{it.stopLoading();it.destroy()};webView=null;root.removeAllViews()
         val scroll=ScrollView(this).apply{isFillViewport=true;overScrollMode=View.OVER_SCROLL_NEVER}
-        val page=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER_HORIZONTAL;setPadding(dp(26),dp(20),dp(26),dp(20))}
+        val page=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER_HORIZONTAL;setPadding(dp(24),dp(18),dp(24),dp(18))}
         scroll.addView(page,FrameLayout.LayoutParams(-1,-2))
         page.addView(TextView(this).apply{
             text="KinoFlix";textSize=38f;typeface=android.graphics.Typeface.create("sans-serif-black",1)
@@ -57,64 +57,70 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
             gravity=Gravity.CENTER;setTextColor(Color.rgb(179,188,208))
         },LinearLayout.LayoutParams(-1,dp(28)))
         val portrait=resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT
-        val cards=LinearLayout(this).apply{orientation=if(portrait)1 else 0;gravity=Gravity.CENTER}
-        libraries.forEach{lib->
-            val lp=LinearLayout.LayoutParams(if(portrait)-1 else 0,if(portrait)dp(158) else dp(220),if(portrait)0f else 1f)
-            if(portrait)lp.bottomMargin=dp(12) else{lp.marginStart=dp(8);lp.marginEnd=dp(8)}
-            cards.addView(makeCard(lib),lp)
+        val circles=LinearLayout(this).apply{orientation=if(portrait)1 else 0;gravity=Gravity.CENTER}
+        libraries.forEachIndexed{index,lib->
+            val size=if(portrait)dp(190) else dp(220)
+            val lp=LinearLayout.LayoutParams(size,size)
+            if(portrait)lp.bottomMargin=dp(34) else if(index==0)lp.marginEnd=dp(58) else lp.marginStart=dp(58)
+            circles.addView(makeCard(lib,size),lp)
         }
-        page.addView(cards,LinearLayout.LayoutParams(-1,-2).apply{topMargin=dp(20)})
+        page.addView(circles,LinearLayout.LayoutParams(-1,-2).apply{topMargin=dp(34)})
         page.addView(TextView(this).apply{
-            text="(RU · UA · EN)";textSize=13f;gravity=Gravity.CENTER;setTextColor(Color.rgb(198,205,220))
-        },LinearLayout.LayoutParams(-1,dp(32)))
-        page.addView(TextView(this).apply{
-            text="Собственная разработка Pasha TV";textSize=13f;gravity=Gravity.CENTER;setTextColor(Color.rgb(124,139,166))
-        },LinearLayout.LayoutParams(-1,dp(34)))
+            text="Собственная разработка Pasha TV";textSize=13f;gravity=Gravity.CENTER
+            setTextColor(Color.rgb(124,139,166))
+        },LinearLayout.LayoutParams(-1,dp(44)).apply{topMargin=dp(20)})
         root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
     }
 
-    private fun makeCard(lib:Library):View{
-        val card=LinearLayout(this).apply{
-            orientation=1;gravity=Gravity.CENTER;isFocusable=true;isFocusableInTouchMode=true
-            setPadding(dp(10),dp(12),dp(10),dp(10));background=cardBg(lib.color,false)
+    private fun makeCard(lib:Library,size:Int):View{
+        val card=FrameLayout(this).apply{isFocusable=true;isFocusableInTouchMode=true;background=circleBg(lib.color,false);elevation=dp(4).toFloat()}
+        val content=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(dp(12),dp(12),dp(12),dp(12))}
+        val logo=ImageView(this).apply{scaleType=ImageView.ScaleType.FIT_CENTER}
+        if(lib.title=="Atodo"){
+            logo.setImageResource(R.drawable.atodo_logo)
+        }else{
+            val fallback=TextView(this).apply{text=lib.letter;textSize=48f;gravity=Gravity.CENTER;setTextColor(lib.color);typeface=android.graphics.Typeface.DEFAULT_BOLD}
+            content.addView(fallback,LinearLayout.LayoutParams(dp(88),dp(88)))
+            thread{
+                try{
+                    val c=URL("https://www.google.com/s2/favicons?domain_url=https://"+lib.domain+"&sz=128").openConnection() as HttpURLConnection
+                    c.connectTimeout=5000;c.readTimeout=5000
+                    val bitmap=c.inputStream.use{BitmapFactory.decodeStream(it)};c.disconnect()
+                    if(bitmap!=null)runOnUiThread{logo.setImageBitmap(bitmap);fallback.visibility=View.GONE}
+                }catch(_:Exception){}
+            }
         }
-        val circle=FrameLayout(this).apply{
-            background=GradientDrawable().apply{shape=GradientDrawable.OVAL;setColor(Color.rgb(24,29,43));setStroke(dp(1),lib.color)}
-        }
-        val fallback=TextView(this).apply{text=lib.letter;textSize=34f;gravity=Gravity.CENTER;setTextColor(lib.color);typeface=android.graphics.Typeface.DEFAULT_BOLD}
-        circle.addView(fallback,FrameLayout.LayoutParams(-1,-1))
-        val logo=ImageView(this).apply{scaleType=ImageView.ScaleType.CENTER_INSIDE}
-        circle.addView(logo,FrameLayout.LayoutParams(-1,-1))
-        card.addView(circle,LinearLayout.LayoutParams(dp(72),dp(72)))
-        val label=TextView(this).apply{text=lib.title;textSize=21f;gravity=Gravity.CENTER;typeface=android.graphics.Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)}
-        card.addView(label,LinearLayout.LayoutParams(-1,dp(38)).apply{topMargin=dp(5)})
-        card.addView(TextView(this).apply{text="(RU · UA · EN)";textSize=11f;gravity=Gravity.CENTER;setTextColor(Color.rgb(164,176,199))},LinearLayout.LayoutParams(-1,dp(22)))
+        content.addView(logo,LinearLayout.LayoutParams(dp(88),dp(88)))
+        val label=TextView(this).apply{text=lib.title;textSize=23f;gravity=Gravity.CENTER;typeface=android.graphics.Typeface.create("sans-serif-bold",1);setTextColor(Color.WHITE)}
+        content.addView(label,LinearLayout.LayoutParams(-1,dp(42)).apply{topMargin=dp(8)})
+        content.addView(TextView(this).apply{text="RU · UA · EN";textSize=11f;gravity=Gravity.CENTER;setTextColor(Color.rgb(174,187,211))},LinearLayout.LayoutParams(-1,dp(22)))
+        card.addView(content,FrameLayout.LayoutParams(-1,-1))
+        var pulse:android.animation.ValueAnimator?=null
         card.setOnFocusChangeListener{v,focus->
-            v.animate().scaleX(if(focus)1.06f else 1f).scaleY(if(focus)1.06f else 1f)
-                .translationZ(if(focus)dp(18).toFloat() else 0f).setDuration(170).start()
-            v.elevation=if(focus)dp(18).toFloat() else dp(3).toFloat()
-            v.background=cardBg(lib.color,focus);label.setTextColor(if(focus)lib.color else Color.WHITE)
-            if(focus) label.setShadowLayer(dp(16).toFloat(),0f,0f,lib.color) else label.setShadowLayer(0f,0f,0f,Color.TRANSPARENT)
+            pulse?.cancel();pulse=null
+            if(focus){
+                v.animate().scaleX(1.09f).scaleY(1.09f).translationZ(dp(22).toFloat()).setDuration(180).start()
+                v.background=circleBg(lib.color,true);v.elevation=dp(22).toFloat()
+                label.setTextColor(lib.color);label.setShadowLayer(dp(18).toFloat(),0f,0f,lib.color)
+                pulse=android.animation.ValueAnimator.ofFloat(1f,1.035f).apply{
+                    duration=850;repeatMode=android.animation.ValueAnimator.REVERSE;repeatCount=android.animation.ValueAnimator.INFINITE
+                    addUpdateListener{val scale=it.animatedValue as Float;v.scaleX=1.09f*scale;v.scaleY=1.09f*scale};start()
+                }
+            }else{
+                v.animate().scaleX(1f).scaleY(1f).translationZ(0f).setDuration(180).start()
+                v.background=circleBg(lib.color,false);v.elevation=dp(4).toFloat()
+                label.setTextColor(Color.WHITE);label.setShadowLayer(0f,0f,0f,Color.TRANSPARENT)
+            }
         }
         card.setOnClickListener{openLibrary(lib)}
-        card.setOnKeyListener{_,key,event->
-            if(event.action==KeyEvent.ACTION_UP&&(key==KeyEvent.KEYCODE_DPAD_CENTER||key==KeyEvent.KEYCODE_ENTER)){openLibrary(lib);true}else false
-        }
-        thread{
-            try{
-                val c=URL("https://www.google.com/s2/favicons?domain_url=https://"+lib.domain+"&sz=128").openConnection() as HttpURLConnection
-                c.connectTimeout=5000;c.readTimeout=5000
-                val bitmap=c.inputStream.use{BitmapFactory.decodeStream(it)};c.disconnect()
-                if(bitmap!=null)runOnUiThread{logo.setImageBitmap(bitmap);fallback.visibility=View.GONE}
-            }catch(_:Exception){}
-        }
+        card.setOnKeyListener{_,key,event->if(event.action==KeyEvent.ACTION_UP&&(key==KeyEvent.KEYCODE_DPAD_CENTER||key==KeyEvent.KEYCODE_ENTER)){openLibrary(lib);true}else false}
         return card
     }
 
-    private fun cardBg(color:Int,focus:Boolean)=GradientDrawable(
-        GradientDrawable.Orientation.TOP_BOTTOM,
-        intArrayOf(if(focus)Color.rgb(38,43,64) else Color.rgb(23,28,43),Color.rgb(13,17,28))
-    ).apply{cornerRadius=dp(18).toFloat();setStroke(if(focus)dp(3) else dp(1),if(focus)color else Color.rgb(49,58,78))}
+    private fun circleBg(color:Int,focus:Boolean)=GradientDrawable(
+        GradientDrawable.Orientation.TL_BR,
+        intArrayOf(if(focus)Color.rgb(40,49,73) else Color.rgb(20,26,42),Color.rgb(8,12,23))
+    ).apply{shape=GradientDrawable.OVAL;setStroke(if(focus)dp(4) else dp(2),if(focus)color else Color.rgb(65,77,104))}
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun openLibrary(lib:Library){
@@ -125,7 +131,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
             settings.mediaPlaybackRequiresUserGesture=false;settings.javaScriptCanOpenWindowsAutomatically=true
             settings.setSupportMultipleWindows(false);settings.loadsImagesAutomatically=true
             settings.useWideViewPort=true;settings.loadWithOverviewMode=true
-            // Atodo TV portal is cropped on Fire TV; zoom out further. Lampa remains unchanged.
+            // Apply one WebView scale only; the previous second CSS zoom made Atodo tiny.
             if(lib.title=="Atodo") setInitialScale(60)
             settings.builtInZoomControls=false;settings.displayZoomControls=false
             CookieManager.getInstance().setAcceptCookie(true);CookieManager.getInstance().setAcceptThirdPartyCookies(this,true)
@@ -141,9 +147,6 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
                 override fun shouldOverrideUrlLoading(view:WebView?,request:WebResourceRequest?)=false
                 override fun onPageFinished(view:WebView?,url:String?){
                     super.onPageFinished(view,url)
-                    if (url?.contains("msx.atodo.fun", ignoreCase=true)==true) {
-                        view?.evaluateJavascript(ATODO_ZOOM_SCRIPT,null)
-                    }
                 }
             }
         }
@@ -152,14 +155,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
         web.loadUrl(lib.url);web.requestFocus(View.FOCUS_DOWN)
     }
 
-    private val ATODO_ZOOM_SCRIPT = """
-        (function() {
-          var root = document.documentElement;
-          if (root) root.style.setProperty('zoom', '0.60', 'important');
-          var body = document.body;
-          if (body) body.style.setProperty('zoom', '0.60', 'important');
-        })();
-    """
+
 
     private fun hideFullView(){
         fullView?.let{root.removeView(it)};fullView=null;fullCallback?.onCustomViewHidden();fullCallback=null
