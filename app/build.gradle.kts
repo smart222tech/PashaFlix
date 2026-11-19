@@ -4,7 +4,7 @@ plugins {
 }
 android {
  namespace = "com.smart222tech.kinoflix"
- compileSdk = 35
+ compileSdk = 36
  defaultConfig {
   applicationId = "com.smart222tech.kinoflix"
   minSdk = 23
