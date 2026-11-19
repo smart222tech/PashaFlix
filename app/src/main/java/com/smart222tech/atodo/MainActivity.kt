@@ -34,7 +34,7 @@ class MainActivity : Activity() {
             settings.loadsImagesAutomatically = true
             settings.useWideViewPort = true
             settings.loadWithOverviewMode = true
-            // Further zoom out to 60% so the Atodo TV interface fits the Fire TV screen.
+            // Keep a single 60% WebView scale; CSS zoom compounded it to 36%.
             setInitialScale(60)
             settings.builtInZoomControls = false
             settings.displayZoomControls = false
@@ -48,7 +48,6 @@ class MainActivity : Activity() {
 
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
-                    view?.evaluateJavascript(ATODO_ZOOM_SCRIPT, null)
                 }
             }
         }
@@ -122,13 +121,5 @@ class MainActivity : Activity() {
 
     companion object {
         private const val ATODO_URL = "https://msx.atodo.fun"
-        private const val ATODO_ZOOM_SCRIPT = """
-            (function() {
-              var root = document.documentElement;
-              if (root) root.style.setProperty('zoom', '0.60', 'important');
-              var body = document.body;
-              if (body) body.style.setProperty('zoom', '0.60', 'important');
-            })();
-        """
     }
 }
