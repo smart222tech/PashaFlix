@@ -33,9 +33,9 @@ class MainActivity : Activity() {
             settings.setSupportMultipleWindows(false)
             settings.loadsImagesAutomatically = true
             settings.useWideViewPort = true
-            settings.loadWithOverviewMode = false
-            // Atodo's TV layout is oversized; zoom out by 20 percent by default.
-            setInitialScale(80)
+            settings.loadWithOverviewMode = true
+            // Further zoom out to 60% so the Atodo TV interface fits the Fire TV screen.
+            setInitialScale(60)
             settings.builtInZoomControls = false
             settings.displayZoomControls = false
 
