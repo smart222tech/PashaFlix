@@ -139,12 +139,27 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
             }
             webViewClient=object:WebViewClient(){
                 override fun shouldOverrideUrlLoading(view:WebView?,request:WebResourceRequest?)=false
+                override fun onPageFinished(view:WebView?,url:String?){
+                    super.onPageFinished(view,url)
+                    if (url?.contains("msx.atodo.fun", ignoreCase=true)==true) {
+                        view?.evaluateJavascript(ATODO_ZOOM_SCRIPT,null)
+                    }
+                }
             }
         }
         webView=web
         root.addView(web,FrameLayout.LayoutParams(-1,-1))
         web.loadUrl(lib.url);web.requestFocus(View.FOCUS_DOWN)
     }
+
+    private val ATODO_ZOOM_SCRIPT = """
+        (function() {
+          var root = document.documentElement;
+          if (root) root.style.setProperty('zoom', '0.60', 'important');
+          var body = document.body;
+          if (body) body.style.setProperty('zoom', '0.60', 'important');
+        })();
+    """
 
     private fun hideFullView(){
         fullView?.let{root.removeView(it)};fullView=null;fullCallback?.onCustomViewHidden();fullCallback=null
