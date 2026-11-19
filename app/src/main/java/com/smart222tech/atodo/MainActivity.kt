@@ -33,7 +33,7 @@ class MainActivity : Activity() {
             settings.setSupportMultipleWindows(false)
             settings.loadsImagesAutomatically = true
             settings.useWideViewPort = true
-            settings.loadWithOverviewMode = true
+            settings.loadWithOverviewMode = false
             settings.builtInZoomControls = false
             settings.displayZoomControls = false
 
@@ -53,6 +53,7 @@ class MainActivity : Activity() {
 
         setContentView(webView)
         if (savedInstanceState == null) {
+            webView.setInitialScale(70)
             webView.loadUrl(ATODO_URL)
         } else {
             webView.restoreState(savedInstanceState)
