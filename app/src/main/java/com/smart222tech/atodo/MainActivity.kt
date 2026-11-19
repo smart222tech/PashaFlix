@@ -156,6 +156,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
         }
         webView=web
         root.addView(web,FrameLayout.LayoutParams(-1,-1))
+        if(lib.title=="Atodo") web.setInitialScale(80)
         web.loadUrl(lib.url);web.requestFocus(View.FOCUS_DOWN)
     }
 
