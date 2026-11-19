@@ -52,7 +52,7 @@ class MainActivity : Activity() {
 
         setContentView(webView)
         if (savedInstanceState == null) {
-            webView.setInitialScale(80)
+            webView.setInitialScale(50)
             webView.loadUrl(ATODO_URL)
         } else {
             webView.restoreState(savedInstanceState)
