@@ -149,18 +149,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
                 override fun shouldOverrideUrlLoading(view:WebView?,request:WebResourceRequest?)=false
                 override fun onPageFinished(view:WebView?,url:String?){
                     super.onPageFinished(view,url)
-                    if (url?.contains("msx.atodo.fun", ignoreCase = true) == true) {
-                        view?.evaluateJavascript("""
-                            (function() {
-                              var meta = document.querySelector('meta[name="viewport"]');
-                              if (!meta) { meta = document.createElement('meta'); meta.name = 'viewport'; document.head.appendChild(meta); }
-                              meta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
-                              document.documentElement.style.zoom = '1';
-                              if (document.body) document.body.style.zoom = '1';
-                              window.scrollTo(0, 0);
-                            })();
-                        """.trimIndent(), null)
-                    }
+
                 }
             }
         }
