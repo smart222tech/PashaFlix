@@ -16,5 +16,5 @@ android {
  kotlinOptions { jvmTarget = "17" }
 }
 dependencies {
-    implementation("org.mozilla.geckoview:geckoview:162.0.20261119041057")
+    implementation("org.mozilla.geckoview:geckoview:160.0.20261104181552")
 }
