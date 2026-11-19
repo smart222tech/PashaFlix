@@ -12,6 +12,10 @@ import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import org.mozilla.geckoview.GeckoRuntime
+import org.mozilla.geckoview.GeckoSession
+import org.mozilla.geckoview.GeckoSessionSettings
+import org.mozilla.geckoview.GeckoView
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -26,6 +30,9 @@ import kotlin.concurrent.thread
 class MainActivity : Activity(), TextToSpeech.OnInitListener {
     private lateinit var root: FrameLayout
     private var webView: WebView? = null
+    private var geckoView: GeckoView? = null
+    private var geckoSession: GeckoSession? = null
+    companion object { private var geckoRuntime: GeckoRuntime? = null }
     private var fullView: View? = null
     private var fullCallback: WebChromeClient.CustomViewCallback? = null
     private var tts: TextToSpeech? = null
@@ -44,7 +51,9 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     }
 
     private fun showHome(){
-        webView?.let{it.stopLoading();it.destroy()};webView=null;root.removeAllViews()
+        webView?.let{it.stopLoading();it.destroy()};webView=null
+        geckoView?.releaseSession();geckoSession?.close();geckoView=null;geckoSession=null
+        root.removeAllViews()
         val scroll=ScrollView(this).apply{isFillViewport=true;overScrollMode=View.OVER_SCROLL_NEVER}
         val page=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER_HORIZONTAL;setPadding(dp(24),dp(18),dp(24),dp(18))}
         scroll.addView(page,FrameLayout.LayoutParams(-1,-2))
@@ -127,6 +136,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun openLibrary(lib:Library){
+        if (lib.title == "Atodo") { openAtodoBrowser(lib); return }
         root.removeAllViews()
         val web=WebView(this).apply{
             setBackgroundColor(Color.BLACK);isFocusable=true;isFocusableInTouchMode=true
@@ -163,6 +173,50 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     }
 
 
+
+
+    // Atodo uses Mozilla GeckoView instead of Android System WebView.
+    // The viewport is rendered at twice the available dimensions and scaled
+    // to 50%, reproducing the working 50% browser zoom without browser chrome.
+    private fun openAtodoBrowser(lib: Library) {
+        webView?.let { it.stopLoading(); it.destroy() }; webView = null
+        geckoView?.releaseSession(); geckoSession?.close()
+        root.removeAllViews()
+
+        val viewport = FrameLayout(this).apply {
+            setBackgroundColor(Color.BLACK)
+            clipChildren = true
+            clipToPadding = true
+        }
+        val browser = GeckoView(this).apply {
+            setBackgroundColor(Color.BLACK)
+            isFocusable = true
+            isFocusableInTouchMode = true
+        }
+        val screenWidth = resources.displayMetrics.widthPixels
+        val screenHeight = resources.displayMetrics.heightPixels
+        browser.pivotX = 0f
+        browser.pivotY = 0f
+        browser.scaleX = 0.5f
+        browser.scaleY = 0.5f
+        viewport.addView(browser, FrameLayout.LayoutParams(screenWidth * 2, screenHeight * 2, Gravity.TOP or Gravity.START))
+        root.addView(viewport, FrameLayout.LayoutParams(-1, -1))
+
+        val runtime = geckoRuntime ?: GeckoRuntime.create(this).also { geckoRuntime = it }
+        val sessionSettings = GeckoSessionSettings.Builder()
+            .userAgentMode(GeckoSessionSettings.USER_AGENT_MODE_DESKTOP)
+            .viewportMode(GeckoSessionSettings.VIEWPORT_MODE_DESKTOP)
+            .build()
+        val session = GeckoSession(sessionSettings)
+        session.open(runtime)
+        session.setContentDelegate(object : GeckoSession.ContentDelegate {})
+        browser.setSession(session)
+        geckoView = browser
+        geckoSession = session
+        browser.requestFocus()
+        session.loadUri(lib.url)
+        hideSystemUi()
+    }
 
     private fun hideFullView(){
         fullView?.let{root.removeView(it)};fullView=null;fullCallback?.onCustomViewHidden();fullCallback=null
@@ -209,12 +263,14 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     override fun onWindowFocusChanged(hasFocus:Boolean){super.onWindowFocusChanged(hasFocus);if(hasFocus)hideSystemUi()}
     @Deprecated("Deprecated by Android")
     override fun onBackPressed(){
-        if(fullView!=null)hideFullView() else{
+        if(fullView!=null)hideFullView() else if (geckoSession != null) { showHome() } else {
             val web=webView
             if(web!=null&&web.canGoBack())web.goBack() else if(web!=null)showHome() else super.onBackPressed()
         }
     }
     override fun onKeyDown(keyCode:Int,event:KeyEvent?):Boolean{
+        val browser = geckoView
+        if (browser != null && event != null) return browser.dispatchKeyEvent(event)
         val web=webView
         val navKeys=keyCode in setOf(KeyEvent.KEYCODE_DPAD_UP,KeyEvent.KEYCODE_DPAD_DOWN,KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_DPAD_RIGHT,KeyEvent.KEYCODE_DPAD_CENTER,KeyEvent.KEYCODE_ENTER)
@@ -223,5 +279,5 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
         if(web!=null&&keys&&event!=null)return(fullView?:web).dispatchKeyEvent(event)
         return super.onKeyDown(keyCode,event)
     }
-    override fun onDestroy(){tts?.stop();tts?.shutdown();webView?.stopLoading();webView?.destroy();super.onDestroy()}
+    override fun onDestroy(){tts?.stop();tts?.shutdown();webView?.stopLoading();webView?.destroy();geckoView?.releaseSession();geckoSession?.close();super.onDestroy()}
 }
