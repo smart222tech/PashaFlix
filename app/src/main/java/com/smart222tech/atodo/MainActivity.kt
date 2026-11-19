@@ -133,7 +133,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
             settings.javaScriptEnabled=true;settings.domStorageEnabled=true;settings.databaseEnabled=true
             settings.mediaPlaybackRequiresUserGesture=false;settings.javaScriptCanOpenWindowsAutomatically=true
             settings.setSupportMultipleWindows(false);settings.loadsImagesAutomatically=true
-            settings.useWideViewPort=true;settings.loadWithOverviewMode=true
+            settings.useWideViewPort=true
             settings.builtInZoomControls=false;settings.displayZoomControls=false
             // Apply one WebView scale only; the previous second CSS zoom made Atodo tiny.
             settings.builtInZoomControls=false;settings.displayZoomControls=false
@@ -156,7 +156,6 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
         }
         webView=web
         root.addView(web,FrameLayout.LayoutParams(-1,-1))
-        if(lib.title=="Atodo") web.setInitialScale(80)
         web.loadUrl(lib.url);web.requestFocus(View.FOCUS_DOWN)
     }
 
