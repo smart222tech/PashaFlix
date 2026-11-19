@@ -34,6 +34,8 @@ class MainActivity : Activity() {
             settings.loadsImagesAutomatically = true
             settings.useWideViewPort = true
             settings.loadWithOverviewMode = true
+            settings.setSupportZoom(true)
+            settings.textZoom = 100
             settings.builtInZoomControls = false
             settings.displayZoomControls = false
 
@@ -46,7 +48,7 @@ class MainActivity : Activity() {
 
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
-                    view?.post { view.setInitialScale(55) }
+                    view?.postDelayed({ view.zoomBy(0.65f) }, 1200)
                 }
             }
         }
