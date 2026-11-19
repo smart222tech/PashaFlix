@@ -45,6 +45,11 @@ class MainActivity : Activity() {
                     view: WebView?,
                     request: WebResourceRequest?
                 ): Boolean = false
+
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    view?.evaluateJavascript(ATODO_ZOOM_SCRIPT, null)
+                }
             }
         }
 
@@ -117,5 +122,13 @@ class MainActivity : Activity() {
 
     companion object {
         private const val ATODO_URL = "https://msx.atodo.fun"
+        private const val ATODO_ZOOM_SCRIPT = """
+            (function() {
+              var root = document.documentElement;
+              if (root) root.style.setProperty('zoom', '0.60', 'important');
+              var body = document.body;
+              if (body) body.style.setProperty('zoom', '0.60', 'important');
+            })();
+        """
     }
 }
