@@ -18,6 +18,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
+      - name: Download official Atodo logo for the KinoFlix selector
+        run: |
+          mkdir -p app/src/main/res/drawable-nodpi
+          curl -fL --retry 3 --connect-timeout 15 https://wals09.github.io/msx/logon/atodo.png -o app/src/main/res/drawable-nodpi/atodo_logo.png
+          file app/src/main/res/drawable-nodpi/atodo_logo.png
       - name: Build debug APK
         run: |
           gradle --no-daemon assembleDebug
