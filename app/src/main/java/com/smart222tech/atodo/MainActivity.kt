@@ -33,7 +33,7 @@ class MainActivity : Activity() {
             settings.setSupportMultipleWindows(false)
             settings.loadsImagesAutomatically = true
             settings.useWideViewPort = true
-            settings.loadWithOverviewMode = false
+            settings.loadWithOverviewMode = true
             settings.builtInZoomControls = false
             settings.displayZoomControls = false
 
@@ -46,14 +46,13 @@ class MainActivity : Activity() {
 
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
-
+                    view?.post { view.setInitialScale(55) }
                 }
             }
         }
 
         setContentView(webView)
         if (savedInstanceState == null) {
-            webView.setInitialScale(70)
             webView.loadUrl(ATODO_URL)
         } else {
             webView.restoreState(savedInstanceState)
