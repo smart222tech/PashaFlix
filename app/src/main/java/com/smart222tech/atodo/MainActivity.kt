@@ -75,12 +75,15 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     private fun makeCard(lib:Library,size:Int):View{
         val card=FrameLayout(this).apply{isFocusable=true;isFocusableInTouchMode=true;background=circleBg(lib.color,false);elevation=dp(4).toFloat()}
         val content=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(dp(12),dp(12),dp(12),dp(12))}
+        val logoBox=FrameLayout(this)
+        val fallback=TextView(this).apply{text=lib.letter;textSize=48f;gravity=Gravity.CENTER;setTextColor(lib.color);typeface=android.graphics.Typeface.DEFAULT_BOLD}
         val logo=ImageView(this).apply{scaleType=ImageView.ScaleType.FIT_CENTER}
+        logoBox.addView(fallback,FrameLayout.LayoutParams(-1,-1))
+        logoBox.addView(logo,FrameLayout.LayoutParams(-1,-1))
         if(lib.title=="Atodo"){
             logo.setImageResource(R.drawable.atodo_logo)
+            fallback.visibility=View.GONE
         }else{
-            val fallback=TextView(this).apply{text=lib.letter;textSize=48f;gravity=Gravity.CENTER;setTextColor(lib.color);typeface=android.graphics.Typeface.DEFAULT_BOLD}
-            content.addView(fallback,LinearLayout.LayoutParams(dp(88),dp(88)))
             thread{
                 try{
                     val c=URL("https://www.google.com/s2/favicons?domain_url=https://"+lib.domain+"&sz=128").openConnection() as HttpURLConnection
@@ -90,7 +93,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
                 }catch(_:Exception){}
             }
         }
-        content.addView(logo,LinearLayout.LayoutParams(dp(88),dp(88)))
+        content.addView(logoBox,LinearLayout.LayoutParams(dp(88),dp(88)))
         val label=TextView(this).apply{text=lib.title;textSize=23f;gravity=Gravity.CENTER;typeface=android.graphics.Typeface.create("sans-serif-bold",1);setTextColor(Color.WHITE)}
         content.addView(label,LinearLayout.LayoutParams(-1,dp(42)).apply{topMargin=dp(8)})
         content.addView(TextView(this).apply{text="RU · UA · EN";textSize=11f;gravity=Gravity.CENTER;setTextColor(Color.rgb(174,187,211))},LinearLayout.LayoutParams(-1,dp(22)))
