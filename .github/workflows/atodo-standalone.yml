@@ -1,4 +1,4 @@
-name: Build Atodo Standalone APK
+name: Build Atodo Standalone APKs
 
 on:
   push:
@@ -24,12 +24,19 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - name: Build standalone APK
-        run: gradle --no-daemon assembleDebug
-      - name: Upload APK
+      - name: Build Fire TV and phone APKs
+        run: gradle --no-daemon assembleFiretvDebug assemblePhoneDebug
+      - name: Upload Fire TV APK (32-bit ARM)
         uses: actions/upload-artifact@v4
         with:
-          name: Atodo-Standalone-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: Atodo-FireTV-ARMv7-APK
+          path: app/build/outputs/apk/firetv/debug/app-firetv-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload phone APK (64-bit ARM)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Atodo-Phone-ARM64-APK
+          path: app/build/outputs/apk/phone/debug/app-phone-debug.apk
           if-no-files-found: error
           retention-days: 30
