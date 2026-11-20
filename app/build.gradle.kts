@@ -37,6 +37,6 @@ android {
 }
 
 dependencies {
-    firetvImplementation("org.mozilla.geckoview:geckoview-armeabi-v7a:140.0.20250707120347")
-    phoneImplementation("org.mozilla.geckoview:geckoview-arm64-v8a:140.0.20250707120347")
+    add("firetvImplementation", "org.mozilla.geckoview:geckoview-armeabi-v7a:140.0.20250707120347")
+    add("phoneImplementation", "org.mozilla.geckoview:geckoview-arm64-v8a:140.0.20250707120347")
 }
