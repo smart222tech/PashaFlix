@@ -19,7 +19,7 @@ class MainActivity : Activity() {
     private var geckoSession: GeckoSession? = null
 
     companion object {
-        private const val ATODO_URL = "https://msx.atodo.fun"
+        private const val ATODO_URL = "https://atodo.fun"
         private var runtime: GeckoRuntime? = null
     }
 
