@@ -31,9 +31,9 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     private var tts: TextToSpeech? = null
     private data class Library(val title:String,val url:String,val domain:String,val letter:String,val color:Int)
     private val libraries = listOf(
-        Library("LIFT","http://lift3.ws","lift3.ws","L",Color.rgb(70,170,255)),
+        Library("LIFT","https://liftw.ws/","liftw.ws","L",Color.rgb(70,170,255)),
         Library("LAMPA","http://lampa.maxvol.pro","lampa.maxvol.pro","L",Color.rgb(255,190,55)),
-        Library("ZONA","http://m.zona.ms","m.zona.ms","Z",Color.rgb(255,75,75))
+        Library("ZONA","https://w1.zona.im/","w1.zona.im","Z",Color.rgb(255,75,75))
     )
     private fun dp(v:Int)=(v*resources.displayMetrics.density).toInt()
 
