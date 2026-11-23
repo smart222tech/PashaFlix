@@ -6,7 +6,6 @@ android {
  namespace = "com.smart222tech.kinoflix"
  compileSdk = 35
  defaultConfig {
-  ndk { abiFilters += listOf("arm64-v8a") }
   applicationId = "com.smart222tech.kinoflix"
   minSdk = 23
   targetSdk = 35
@@ -17,5 +16,4 @@ android {
  kotlinOptions { jvmTarget = "17" }
 }
 dependencies {
-    implementation("org.mozilla.geckoview:geckoview-arm64-v8a:140.0.20250707120347")
 }
