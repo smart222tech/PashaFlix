@@ -1,13 +1,13 @@
-name: Build KinoFlix APK
+name: Build LAMPA Standalone APK
 on:
   push:
-    branches: [feature/kinoflix-three-library-app]
+    branches: [feature/lampa-standalone]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   build:
-    name: Build universal KinoFlix APK
+    name: Build standalone LAMPA APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,19 +18,14 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
-      - name: Download official Zona logo for the KinoFlix selector
-        run: |
-          mkdir -p app/src/main/res/drawable-nodpi
-          curl -fL --retry 3 --connect-timeout 15 https://msx.zona.ms/assets/logo_512_512.png -o app/src/main/res/drawable-nodpi/zona_logo.png
-          file app/src/main/res/drawable-nodpi/zona_logo.png
-      - name: Build debug APK
+      - name: Build LAMPA APK
         run: |
           gradle --no-daemon assembleDebug
           mkdir -p dist
-          cp app/build/outputs/apk/debug/app-debug.apk dist/KinoFlix-TV.apk
+          cp app/build/outputs/apk/debug/app-debug.apk dist/LAMPA-Android-TV.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: KinoFlix-Android-APK
-          path: dist/KinoFlix-TV.apk
+          name: LAMPA-Android-TV-APK
+          path: dist/LAMPA-Android-TV.apk
           if-no-files-found: error
           retention-days: 30
