@@ -3,10 +3,10 @@ plugins {
  id("org.jetbrains.kotlin.android")
 }
 android {
- namespace = "com.smart222tech.kinoflix"
+ namespace = "com.smart222tech.lampa"
  compileSdk = 35
  defaultConfig {
-  applicationId = "com.smart222tech.kinoflix"
+  applicationId = "com.smart222tech.lampa"
   minSdk = 23
   targetSdk = 35
   versionCode = 1
