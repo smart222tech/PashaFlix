@@ -33,7 +33,8 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     private val libraries = listOf(
         Library("LIFT","https://liftw.ws/","liftw.ws","L",Color.rgb(70,170,255)),
         Library("LAMPA","http://lampa.maxvol.pro","lampa.maxvol.pro","L",Color.rgb(255,190,55)),
-        Library("ZONA","https://w1.zona.im/","w1.zona.im","Z",Color.rgb(255,75,75))
+        Library("ZONA","https://w1.zona.im/","w1.zona.im","Z",Color.rgb(255,75,75)),
+        Library("FORKPLAYER","http://browser.appinfo.su/","browser.appinfo.su","F",Color.rgb(110,190,120))
     )
     private fun dp(v:Int)=(v*resources.displayMetrics.density).toInt()
 
@@ -55,7 +56,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
             gravity=Gravity.CENTER;setTextColor(Color.WHITE);setShadowLayer(dp(18).toFloat(),0f,0f,Color.rgb(255,100,45))
         },LinearLayout.LayoutParams(-1,dp(58)))
         page.addView(TextView(this).apply{
-            text="ТРИ ВИДЕОТЕКИ — ОДНО ПРИЛОЖЕНИЕ";textSize=12f;letterSpacing=.12f
+            text="ЧЕТЫРЕ ВИДЕОТЕКИ — ОДНО ПРИЛОЖЕНИЕ";textSize=12f;letterSpacing=.12f
             gravity=Gravity.CENTER;setTextColor(Color.rgb(179,188,208))
         },LinearLayout.LayoutParams(-1,dp(28)))
         val portrait=resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT
