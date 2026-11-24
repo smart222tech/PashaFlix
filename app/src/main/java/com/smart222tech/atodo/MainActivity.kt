@@ -28,6 +28,8 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     private var webView: WebView? = null
     private var fullView: View? = null
     private var fullCallback: WebChromeClient.CustomViewCallback? = null
+    private var cursorView: RemoteCursorView? = null
+    private var mouseMode = false
     private var tts: TextToSpeech? = null
     private data class Library(val title:String,val url:String,val domain:String,val letter:String,val color:Int)
     private val libraries = listOf(
@@ -46,8 +48,8 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     }
 
     private fun showHome(){
-        webView?.let{it.stopLoading();it.destroy()};webView=null
-                root.removeAllViews()
+        webView?.let{it.stopLoading();it.destroy()};webView=null;cursorView=null;mouseMode=false
+        root.removeAllViews()
         val scroll=ScrollView(this).apply{isFillViewport=true;overScrollMode=View.OVER_SCROLL_NEVER}
         val page=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER_HORIZONTAL;setPadding(dp(24),dp(18),dp(24),dp(18))}
         scroll.addView(page,FrameLayout.LayoutParams(-1,-2))
@@ -163,6 +165,12 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
         }
         webView=web
         root.addView(web,FrameLayout.LayoutParams(-1,-1))
+        mouseMode = lib.title in setOf("LIFT","ZONA","FORKPLAYER")
+        cursorView?.let{root.removeView(it)}
+        cursorView = if(mouseMode) RemoteCursorView(this).also {
+            root.addView(it,FrameLayout.LayoutParams(-1,-1))
+            it.bringToFront()
+        } else null
         web.loadUrl(lib.url);web.requestFocus(View.FOCUS_DOWN)
     }
 
@@ -171,6 +179,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
 
     private fun hideFullView(){
         fullView?.let{root.removeView(it)};fullView=null;fullCallback?.onCustomViewHidden();fullCallback=null
+        cursorView?.visibility=if(mouseMode)View.VISIBLE else View.GONE
         webView?.let{if(it.parent==null)root.addView(it,FrameLayout.LayoutParams(-1,-1));it.requestFocus()}
         hideSystemUi()
     }
@@ -205,6 +214,39 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     }
 
 
+    private inner class RemoteCursorView(context:Context):View(context){
+        private val paint=Paint(Paint.ANTI_ALIAS_FLAG)
+        private var cx=0f
+        private var cy=0f
+        private var ready=false
+        init{isFocusable=false;isClickable=false}
+        override fun onSizeChanged(w:Int,h:Int,oldw:Int,oldh:Int){
+            super.onSizeChanged(w,h,oldw,oldh)
+            if(!ready){cx=w/2f;cy=h/2f;ready=true}
+        }
+        fun moveBy(dx:Int,dy:Int){
+            cx=(cx+dx).coerceIn(dp(18).toFloat(),(width-dp(18)).coerceAtLeast(dp(18)).toFloat())
+            cy=(cy+dy).coerceIn(dp(18).toFloat(),(height-dp(18)).coerceAtLeast(dp(18)).toFloat())
+            invalidate()
+        }
+        fun click(target:WebView){
+            val now=android.os.SystemClock.uptimeMillis()
+            val down=android.view.MotionEvent.obtain(now,now,android.view.MotionEvent.ACTION_DOWN,cx,cy,0)
+            val up=android.view.MotionEvent.obtain(now,now+70,android.view.MotionEvent.ACTION_UP,cx,cy,0)
+            target.dispatchTouchEvent(down);target.dispatchTouchEvent(up)
+            down.recycle();up.recycle()
+        }
+        override fun onDraw(canvas:Canvas){
+            super.onDraw(canvas)
+            if(!mouseMode||fullView!=null)return
+            paint.style=Paint.Style.FILL;paint.color=Color.argb(210,8,12,22)
+            canvas.drawCircle(cx,cy,dp(13).toFloat(),paint)
+            paint.style=Paint.Style.STROKE;paint.strokeWidth=dp(2).toFloat();paint.color=Color.WHITE
+            canvas.drawCircle(cx,cy,dp(13).toFloat(),paint)
+            paint.style=Paint.Style.FILL;paint.color=Color.rgb(255,65,65)
+            canvas.drawCircle(cx,cy,dp(3).toFloat(),paint)
+        }
+    }
     private fun hideSystemUi(){
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility=(View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
@@ -221,6 +263,17 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
     }
     override fun onKeyDown(keyCode:Int,event:KeyEvent?):Boolean{
         val web=webView
+        if(web!=null && mouseMode && fullView==null && cursorView!=null){
+            val cursor=cursorView!!
+            val step=dp(28)
+            when(keyCode){
+                KeyEvent.KEYCODE_DPAD_UP->{cursor.moveBy(0,-step);return true}
+                KeyEvent.KEYCODE_DPAD_DOWN->{cursor.moveBy(0,step);return true}
+                KeyEvent.KEYCODE_DPAD_LEFT->{cursor.moveBy(-step,0);return true}
+                KeyEvent.KEYCODE_DPAD_RIGHT->{cursor.moveBy(step,0);return true}
+                KeyEvent.KEYCODE_DPAD_CENTER,KeyEvent.KEYCODE_ENTER->{if(event?.repeatCount==0)cursor.click(web);return true}
+            }
+        }
         val navKeys=keyCode in setOf(KeyEvent.KEYCODE_DPAD_UP,KeyEvent.KEYCODE_DPAD_DOWN,KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_DPAD_RIGHT,KeyEvent.KEYCODE_DPAD_CENTER,KeyEvent.KEYCODE_ENTER)
         if(web!=null && navKeys && event!=null) return (fullView?:web).dispatchKeyEvent(event)
