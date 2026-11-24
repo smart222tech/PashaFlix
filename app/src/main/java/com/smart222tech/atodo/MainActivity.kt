@@ -109,16 +109,35 @@ class MainActivity : Activity() {
 
     @Deprecated("Deprecated by Android")
     override fun onBackPressed() {
+        handleRemoteBack()
+    }
+
+    private fun handleRemoteBack() {
         if (fullView != null) {
             hideFullView()
             return
         }
-        val web = webView
-        if (web != null && web.canGoBack()) {
+        val web = webView ?: return
+        // Lampa is a single-page web app: some player/detail screens use
+        // JavaScript history rather than WebView's native back-forward list.
+        // Try native history first, then dispatch browser history.back().
+        if (web.canGoBack()) {
             web.goBack()
         } else {
-            super.onBackPressed()
+            web.evaluateJavascript(
+                "(function(){ if (history.length > 1) { history.back(); return 'back'; } return 'home'; })();",
+                null
+            )
         }
+        web.postDelayed({ web.requestFocus() }, 150)
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+            if (event.action == KeyEvent.ACTION_UP) handleRemoteBack()
+            return true
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
