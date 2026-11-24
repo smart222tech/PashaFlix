@@ -36,7 +36,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
         Library("LIFT","https://liftw.ws/","liftw.ws","L",Color.rgb(70,170,255)),
         Library("LAMPA","http://lampa.maxvol.pro","lampa.maxvol.pro","L",Color.rgb(255,190,55)),
         Library("ZONA","https://w1.zona.im/","w1.zona.im","Z",Color.rgb(255,75,75)),
-        Library("FORKPLAYER","http://browser.appinfo.su/","browser.appinfo.su","F",Color.rgb(110,190,120))
+        Library("FORKPLAYER","http://browser.appinfo.su/#about:blank;5","browser.appinfo.su","F",Color.rgb(110,190,120))
     )
     private fun dp(v:Int)=(v*resources.displayMetrics.density).toInt()
 
@@ -143,7 +143,7 @@ class MainActivity : Activity(), TextToSpeech.OnInitListener {
             settings.setSupportMultipleWindows(false);settings.loadsImagesAutomatically=true
             settings.useWideViewPort=true
             settings.loadWithOverviewMode=true
-            settings.userAgentString="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+            settings.userAgentString="Mozilla/5.0 (Linux; Android 9; AFTKA) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
             settings.builtInZoomControls=false;settings.displayZoomControls=false
                         settings.builtInZoomControls=false;settings.displayZoomControls=false
             CookieManager.getInstance().setAcceptCookie(true);CookieManager.getInstance().setAcceptThirdPartyCookies(this,true)
